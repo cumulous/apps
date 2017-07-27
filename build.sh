@@ -15,8 +15,8 @@ build_image () {
 
   cd "${ROOT_DIR}/images/${name}"
 
-  aws ecr create-repository --repository-name ${repo_name} | true
-  docker pull ${ECR}/${repo_name} | true
+  aws ecr create-repository --repository-name ${repo_name} || true
+  docker pull ${ECR}/${repo_name} || true
   docker build -t ${name} .
 
   local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
