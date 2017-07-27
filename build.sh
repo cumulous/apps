@@ -15,13 +15,13 @@ build_image () {
 
   cd "${ROOT_DIR}/images/${name}"
 
-  aws ecr create-repository --repository-name ${repo_name} | \
-    docker pull ${ECR}/${repo_name}
+  aws ecr create-repository --repository-name ${repo_name} | true
+  docker pull ${ECR}/${repo_name} | true
   docker build -t ${name} .
 
   local version=$(docker image inspect ${name} -f '{{ .Config.Labels.Version }}')
   local repo_tag=${ECR}/${repo_name}:${version}
-  
+
   docker tag ${name}:latest ${repo_tag}
   docker push ${repo_tag}
 
