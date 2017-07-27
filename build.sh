@@ -9,6 +9,13 @@ ECR=$(echo ${LOGIN} | sed 's|.*https://||')
 
 $LOGIN
 
+calc_hash() {
+  find "$1" -type f -exec md5sum {} \; |
+    sort -k 2 |
+    md5sum |
+    cut -d ' ' -f1
+}
+
 build_image () {
   local name=$1
   local repo_name=${STACK_NAME}/${name}
@@ -17,13 +24,19 @@ build_image () {
 
   aws ecr create-repository --repository-name ${repo_name} || true
   docker pull ${ECR}/${repo_name} || true
-  docker build -t ${name} .
 
-  local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
-  local repo_tag=${ECR}/${repo_name}:${version}
+  local remote_hash=$(docker inspect -f '{{ .Config.Labels.Hash }}' ${ECR}/${repo_name}) || true
+  local local_hash=$(calc_hash .)
 
-  docker tag ${name}:latest ${repo_tag}
-  docker push ${repo_tag}
+  if [ "${local_hash}" != "${remote_hash}" ]; then
+    docker build --label Hash="${local_hash}" -t ${name} .
+
+    local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
+    local repo_tag=${ECR}/${repo_name}:${version}
+
+    docker tag ${name}:latest ${repo_tag}
+    docker push ${repo_tag}
+  fi
 
   cd "${ROOT_DIR}"
 }
