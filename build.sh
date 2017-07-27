@@ -16,6 +16,15 @@ calc_hash() {
     cut -d ' ' -f1
 }
 
+tag_and_push() {
+  local name="$1"
+  local tag="$2"
+  local repo=${ECR}/${STACK_NAME}/${name}
+
+  docker tag ${name} ${repo}:${tag}
+  docker push ${repo}:${tag}
+}
+
 build_image () {
   local name=$1
   local repo_name=${STACK_NAME}/${name}
@@ -30,10 +39,8 @@ build_image () {
 
     local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
 
-    docker tag ${name}:latest ${ECR}/${repo_name}:${hash}
-    docker tag ${name}:latest ${ECR}/${repo_name}:${version}
-    docker push ${ECR}/${repo_name}:${hash}
-    docker push ${ECR}/${repo_name}:${version}
+    tag_and_push ${name} ${version}
+    tag_and_push ${name} ${hash}
   }
 
   cd "${ROOT_DIR}"
