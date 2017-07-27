@@ -1,13 +1,5 @@
 version: 0.1
 phases:
-  pre_build:
-    commands:
-      - $(aws ecr get-login)
-      - docker pull "${REPO_BASE}/aws-base"
   build:
     commands:
-      - cd images/aws-base
-      - docker build -t aws-base .
-  post_build:
-    commands:
-      - docker push "${REPO_BASE}/aws-base"
+      - bash build.sh
