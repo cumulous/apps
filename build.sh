@@ -19,7 +19,7 @@ build_image () {
   docker pull ${ECR}/${repo_name} | true
   docker build -t ${name} .
 
-  local version=$(docker image inspect ${name} -f '{{ .Config.Labels.Version }}')
+  local version=$(docker inspect ${name} -f '{{ .Config.Labels.Version }}')
   local repo_tag=${ECR}/${repo_name}:${version}
 
   docker tag ${name}:latest ${repo_tag}
