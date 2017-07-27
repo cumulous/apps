@@ -1,5 +1,7 @@
 FROM alpine
 
+LABEL Version=latest
+
 ENV USER=user
 
 WORKDIR /usr/local/bin
