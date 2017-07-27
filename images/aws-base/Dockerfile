@@ -1,6 +1,6 @@
 FROM alpine
 
-LABEL Version=latest
+LABEL Version=1.0
 
 ENV USER=user
 

@@ -25,7 +25,7 @@ tag_and_push() {
   docker push ${repo}:${tag}
 }
 
-build_image () {
+build_image() {
   local name=$1
   local repo_name=${STACK_NAME}/${name}
 
