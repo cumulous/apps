@@ -22,21 +22,19 @@ build_image () {
 
   cd "${ROOT_DIR}/images/${name}"
 
+  local hash=$(calc_hash .)
+
   aws ecr create-repository --repository-name ${repo_name} || true
-  docker pull ${ECR}/${repo_name} || true
-
-  local remote_hash=$(docker inspect -f '{{ .Config.Labels.Hash }}' ${ECR}/${repo_name}) || true
-  local local_hash=$(calc_hash .)
-
-  if [ "${local_hash}" != "${remote_hash}" ]; then
-    docker build --label Hash="${local_hash}" -t ${name} .
+  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || {
+    docker build -t ${name} .
 
     local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
-    local repo_tag=${ECR}/${repo_name}:${version}
 
-    docker tag ${name}:latest ${repo_tag}
-    docker push ${repo_tag}
-  fi
+    docker tag ${name}:latest ${ECR}/${repo_name}:${hash}
+    docker tag ${name}:latest ${ECR}/${repo_name}:${version}
+    docker push ${ECR}/${repo_name}:${hash}
+    docker push ${ECR}/${repo_name}:${version}
+  }
 
   cd "${ROOT_DIR}"
 }
