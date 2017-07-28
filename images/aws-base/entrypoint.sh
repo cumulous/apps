@@ -49,9 +49,14 @@ run() {
   local regex='[^[]*(\[/([^]]*)\]:([dio]))[^[]*'
   local matches=$(echo "${ARGS}" | sed -rn "s|${regex}|\1;\2;\3\n|gp")
 
+  echo ${ARGS}
+  echo ${matches}
+
   while read -r match; do
 
     IFS=';' read arg path mode <<< "${match}"
+
+    echo ${arg} ${path} ${mode}
 
     case ${mode} in
       i|o)
@@ -78,6 +83,8 @@ run() {
         ;;
     esac
   done <<< "${matches}"
+
+  echo ${PREFIX}${ARGS}
 
   ${PREFIX}${ARGS%--*} &
 
