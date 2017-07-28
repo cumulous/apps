@@ -9,8 +9,6 @@ WORKDIR /usr/local/bin
 RUN apk add --no-cache bash openssl python py-pip && \
     pip install awscli && \
     apk del --purge py-pip && \
-    adduser -S ${USER} && \
-    mkdir -p /data && \
-    chown ${USER} /data
+    adduser -S ${USER}
 
 COPY entrypoint.sh .
