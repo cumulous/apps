@@ -3,6 +3,7 @@
 set -e
 
 ROOT_DIR="${PWD}"
+BASE_IMAGE=aws-base
 
 LOGIN=$(aws ecr get-login)
 ECR=$(echo ${LOGIN} | sed 's|.*https://||')
@@ -27,27 +28,37 @@ tag_and_push() {
 
 build_image() {
   local name=$1
+  local force=$2
   local repo_name=${STACK_NAME}/${name}
 
   cd "${ROOT_DIR}/images/${name}"
 
   local hash=$(calc_hash .)
+  local cached=1
 
   aws ecr create-repository --repository-name ${repo_name} || true
-  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || {
+  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || [ -z "${force}" ] || {
     docker build -t ${name} .
 
     local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
 
     tag_and_push ${name} ${version}
     tag_and_push ${name} ${hash}
+
+    cached=0
   }
 
   cd "${ROOT_DIR}"
+  return ${cached}
 }
 
-build_image aws-base
+REBUILD=true
+build_image ${BASE_IMAGE} || {
+  docker pull ${ECR}/${STACK_NAME}/${BASE_IMAGE}
+  docker tag ${ECR}/${STACK_NAME}/${BASE_IMAGE} ${BASE_IMAGE}
+  REBUILD=
+}
 
 for app in $(ls images/apps); do
-  build_image apps/${app}
+  build_image apps/${app} ${REBUILD}
 done
