@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.6
 
 LABEL Version=1.0
 
