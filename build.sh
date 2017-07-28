@@ -7,8 +7,9 @@ BASE_IMAGE=aws-base
 
 LOGIN=$(aws ecr get-login)
 ECR=$(echo ${LOGIN} | sed 's|.*https://||')
+REPO_BASE=${ECR}/${STACK_NAME}
 
-$LOGIN
+${LOGIN}
 
 calc_hash() {
   find "$1" -type f -exec md5sum {} \; |
@@ -20,7 +21,7 @@ calc_hash() {
 tag_and_push() {
   local name="$1"
   local tag="$2"
-  local repo=${ECR}/${STACK_NAME}/${name}
+  local repo=${REPO_BASE}/${name}
 
   docker tag ${name} ${repo}:${tag}
   docker push ${repo}:${tag}
@@ -52,8 +53,8 @@ build_image() {
 
 REBUILD=true
 build_image ${BASE_IMAGE} || {
-  docker pull ${ECR}/${STACK_NAME}/${BASE_IMAGE}
-  docker tag ${ECR}/${STACK_NAME}/${BASE_IMAGE} ${BASE_IMAGE}
+  docker pull ${REPO_BASE}/${BASE_IMAGE}
+  docker tag ${REPO_BASE}/${BASE_IMAGE} ${BASE_IMAGE}
   REBUILD=
 }
 
