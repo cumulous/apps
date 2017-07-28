@@ -57,6 +57,6 @@ build_image ${BASE_IMAGE} || {
   REBUILD=
 }
 
-for app in $(ls images/apps); do
+for app in $(ls "${ROOT_DIR}/images/apps"); do
   build_image apps/${app} ${REBUILD} || true
 done
