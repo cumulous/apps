@@ -47,7 +47,7 @@ run() {
   }
 
   local regex='[^[]*(\[/([^]]*)\]:([dio]))[^[]*'
-  local matches=$(echo "${args}" | sed -rn "s|${regex}|\1;\2;\3\n|gp")
+  local matches=$(echo "${ARGS}" | sed -rn "s|${regex}|\1;\2;\3\n|gp")
 
   while read -r match; do
 
@@ -56,14 +56,14 @@ run() {
     case ${mode} in
       i|o)
         pipe="$(fifo "${path}")"
-        args="${args/"${arg}"/"'${pipe}'"}"
+        args="${ARGS/"${arg}"/"'${pipe}'"}"
         ;;
       d)
-        args="${args/"${arg}"/"'${data_path}/${path}'"}"
+        args="${ARGS/"${arg}"/"'${DATA_PATH}/${path}'"}"
         ;;
     esac
 
-    s3url="s3://${data_bucket}/${path}"
+    s3url="s3://${DATA_BUCKET}/${path}"
 
     case $mode in
       i)
@@ -74,7 +74,7 @@ run() {
         s3out "${pipe}" "${s3url}"
         ;;
       d)
-        s3down "${s3url}" "${data_path}/${path}"
+        s3down "${s3url}" "${DATA_PATH}/${path}"
         ;;
     esac
   done <<< "${matches}"
