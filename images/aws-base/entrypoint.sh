@@ -40,10 +40,15 @@ run() {
   }
 
   s3down() {
-    mkdir -p "$2"
+    local path="$2"
+    local dir=$(dirname "${path}")
+    if [[ ${path} == */ ]]; then
+      dir="${path}"
+    fi
+    mkdir -p "${dir}"
     if flock 200; then
       s3sync "$@"
-    fi 200>"$2/.lock"
+    fi 200>"${dir}/.lock"
   }
 
   local regex='[^[]*(\[/([^]]*)\]:([dio]))[^[]*'
