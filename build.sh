@@ -37,7 +37,7 @@ build_image() {
   local cached=1
 
   aws ecr create-repository --repository-name ${repo_name} || true
-  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || [ -z "${force}" ] || {
+  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || [ -n "${force}" ] || {
     docker build -t ${name} .
 
     local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
