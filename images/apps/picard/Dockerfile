@@ -9,6 +9,4 @@ ENV REPO="https://github.com/broadinstitute/picard/releases/download"
 RUN apk add --no-cache openjdk8-jre-base && \
     wget -q "${REPO}/${VERSION}/picard.jar"
 
-USER ${USER}
-
 ENTRYPOINT ["entrypoint.sh", "java -jar picard.jar", ""]

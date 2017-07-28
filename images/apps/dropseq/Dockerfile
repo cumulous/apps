@@ -14,6 +14,4 @@ RUN apk add --no-cache openjdk8-jre-base && \
     mv "${PREFIX}-${VERSION}"/* . && \
     rm -rf "${PREFIX}-${VERSION}" "${ZIP}"
 
-USER ${USER}
-
 ENTRYPOINT ["entrypoint.sh", "./"]

@@ -11,6 +11,4 @@ RUN wget -q "${REPO}/${VERSION}.zip" && \
     mv "STAR-${VERSION}/bin/Linux_x86_64_static/STAR" . && \
     rm -rf *${VERSION}*
 
-USER ${USER}
-
 ENTRYPOINT ["entrypoint.sh", "STAR", ""]
