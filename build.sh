@@ -34,24 +34,20 @@ build_image() {
   cd "${ROOT_DIR}/images/${name}"
 
   local hash=$(calc_hash .)
-  local cached=1
 
   aws ecr create-repository --repository-name ${repo_name} || true
   aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || build=true
 
-  if [ -n "${build}" ]; then
+  if [ -z "${build}" ]; then
+    false
+  else
     docker build -t ${name} .
 
     local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
 
     tag_and_push ${name} ${version}
     tag_and_push ${name} ${hash}
-
-    cached=0
   fi
-
-  cd "${ROOT_DIR}"
-  return ${cached}
 }
 
 REBUILD=true
@@ -62,5 +58,5 @@ build_image ${BASE_IMAGE} || {
 }
 
 for app in $(ls images/apps); do
-  build_image apps/${app} ${REBUILD}
+  build_image apps/${app} ${REBUILD} || true
 done
