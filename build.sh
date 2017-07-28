@@ -28,7 +28,7 @@ tag_and_push() {
 
 build_image() {
   local name=$1
-  local force=$2
+  local build=$2
   local repo_name=${STACK_NAME}/${name}
 
   cd "${ROOT_DIR}/images/${name}"
@@ -37,7 +37,9 @@ build_image() {
   local cached=1
 
   aws ecr create-repository --repository-name ${repo_name} || true
-  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || [ -n "${force}" ] || {
+  aws ecr describe-images --repository-name ${repo_name} --image-ids imageTag="${hash}" || build=true
+
+  if [ -n "${build}" ]; then
     docker build -t ${name} .
 
     local version=$(docker inspect -f '{{ .Config.Labels.Version }}' ${name})
@@ -46,7 +48,7 @@ build_image() {
     tag_and_push ${name} ${hash}
 
     cached=0
-  }
+  fi
 
   cd "${ROOT_DIR}"
   return ${cached}
