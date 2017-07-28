@@ -53,6 +53,9 @@ while read -r match; do
       pipe="$(fifo "${path}")"
       ARGS="${ARGS/"${arg}"/"${pipe}"}"
       ;;
+    d)
+      ARGS="${ARGS/"${arg}"/"${DATA_PATH}/${path}"}"
+      ;;
   esac
 
   s3url="s3://${DATA_BUCKET}/${path}"
