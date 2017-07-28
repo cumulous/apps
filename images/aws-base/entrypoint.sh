@@ -56,10 +56,10 @@ run() {
     case ${mode} in
       i|o)
         pipe="$(fifo "${path}")"
-        ARGS="${ARGS/"${arg}"/"'${pipe}'"}"
+        ARGS="${ARGS/"${arg}"/"${pipe}"}"
         ;;
       d)
-        ARGS="${ARGS/"${arg}"/"'${DATA_PATH}/${path}'"}"
+        ARGS="${ARGS/"${arg}"/"${DATA_PATH}/${path}"}"
         ;;
     esac
 
