@@ -51,12 +51,12 @@ run() {
     fi 200>"${dir}/.lock"
   }
 
-  local regex='[^[]*(\[/([^]]*)\]:([dio]))[^[]*'
+  local regex='[^[]*(\[([dio]):/([^]]*)\])[^[]*'
   local matches=$(echo "${ARGS}" | sed -rn "s|${regex}|\1;\2;\3\n|gp")
 
   while read -r match; do
 
-    IFS=';' read arg path mode <<< "${match}"
+    IFS=';' read arg mode path <<< "${match}"
 
     case ${mode} in
       i|o)
