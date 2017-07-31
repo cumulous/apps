@@ -44,14 +44,13 @@ run() {
     local dest="$2"
     local filter="$3"
 
-    aws s3 sync "s3://${DATA_BUCKET}/${dir}" "${dest}" --exclude \"\*\" --include \"${filter}\" &
+    aws s3 sync "s3://${DATA_BUCKET}/${dir}" "${dest}" --exclude "*" --include "${filter}" &
     trap "exit 143" INT TERM
     wait $!
   }
 
   s3down() {
     local path="$1"
-    local dest="$2"
 
     local dir=$(dirname "${path}")
     local filter=$(basename  "${path}")
@@ -61,6 +60,7 @@ run() {
       filter="*"
     fi
 
+    local dest="${DATA_PATH}/${dir}"
     mkdir -p "${dest}"
     if flock 200; then
       s3sync "${dir}" "${dest}" "${filter}"
@@ -93,7 +93,7 @@ run() {
         s3out "${pipe}" "${path}"
         ;;
       d)
-        s3down "${path}" "${DATA_PATH}/${path}"
+        s3down "${path}"
         ;;
     esac
   done <<< "${matches}"
