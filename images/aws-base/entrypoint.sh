@@ -22,35 +22,49 @@ run() {
   }
 
   s3in() {
+    local path="$1"
+    local pipe="$2"
+
     while true; do
-      s3cp "$1" - --quiet | cat > "$2"
+      s3cp "s3://${DATA_BUCKET}/${path}" - --quiet | cat > "${pipe}"
       break
     done &
   }
 
   s3out() {
-    s3cp - "$2" < "$1" &
+    local pipe="$1"
+    local path="$2"
+
+    s3cp - "s3://${DATA_BUCKET}/${path}" < "${pipe}" &
     OUT_PIDS="${OUT_PIDS} $!"
   }
 
   s3sync() {
-    aws s3 sync "$1" "$2" --exclude "*" --include "$3" &
+    local dir="$1"
+    local dest="$2"
+    local filter="$3"
+
+    aws s3 sync "s3://${DATA_BUCKET}/${dir}" "${dest}" --exclude \"\*\" --include \"${filter}\" &
     trap "exit 143" INT TERM
     wait $!
   }
 
   s3down() {
-    local path="$2"
+    local path="$1"
+    local dest="$2"
+
     local dir=$(dirname "${path}")
     local filter=$(basename  "${path}")
+
     if [[ ${path} == */ ]]; then
       dir="${path}"
       filter="*"
     fi
-    mkdir -p "${dir}"
+
+    mkdir -p "${dest}"
     if flock 200; then
-      s3sync "$1" "${dir}" "${filter}"
-    fi 200>"${dir}/.lock"
+      s3sync "${dir}" "${dest}" "${filter}"
+    fi 200>"${dest}/.lock"
   }
 
   local regex='[^[]*(\[([dio]):/([^]]*)\])[^[]*'
@@ -70,18 +84,16 @@ run() {
         ;;
     esac
 
-    s3url="s3://${DATA_BUCKET}/${path}"
-
     case $mode in
       i)
-        s3in "${s3url}" "${pipe}"
+        s3in "${path}" "${pipe}"
         exec 3>"${pipe}" &
         ;;
       o)
-        s3out "${pipe}" "${s3url}"
+        s3out "${pipe}" "${path}"
         ;;
       d)
-        s3down "${s3url}" "${DATA_PATH}/${path}"
+        s3down "${path}" "${DATA_PATH}/${path}"
         ;;
     esac
   done <<< "${matches}"
