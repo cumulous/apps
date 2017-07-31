@@ -34,7 +34,7 @@ run() {
   }
 
   s3sync() {
-    aws s3 sync "$1" "$2" &
+    aws s3 sync "$1" "$2" --exclude "*" --include "$3" &
     trap "exit 143" INT TERM
     wait $!
   }
@@ -42,12 +42,14 @@ run() {
   s3down() {
     local path="$2"
     local dir=$(dirname "${path}")
+    local filter=$(basename  "${path}")
     if [[ ${path} == */ ]]; then
       dir="${path}"
+      filter="*"
     fi
     mkdir -p "${dir}"
     if flock 200; then
-      s3sync "$@"
+      s3sync "$1" "${dir}" "${filter}"
     fi 200>"${dir}/.lock"
   }
 
