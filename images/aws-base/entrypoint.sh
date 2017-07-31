@@ -27,7 +27,6 @@ run() {
 
     while true; do
       s3cp "s3://${DATA_BUCKET}/${path}" - --quiet | cat > "${pipe}"
-      break
     done &
   }
 
