@@ -6,6 +6,7 @@ export PREFIX="$1" && shift
 export ARGS="$@"
 export DATA_PATH="${DATA_PATH:-/data}"
 export DATA_BUCKET
+export LOG_DEST
 
 USER=user
 
@@ -97,7 +98,10 @@ run() {
     esac
   done <<< "${matches}"
 
-  ${PREFIX}${ARGS%--*} &
+  local log="$(fifo "${LOG_DEST}")"
+  s3out "${log}" "${LOG_DEST}"
+
+  ${PREFIX}${ARGS%--*} &>"${log}" &
 
   trap "kill $!" INT TERM
   wait $! && wait ${OUT_PIDS} || exit $?

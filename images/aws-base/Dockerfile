@@ -1,7 +1,7 @@
 FROM alpine
 
 LABEL Version=latest \
-      Revision=1.1
+      Revision=1.2
 
 WORKDIR /usr/local/bin
 
