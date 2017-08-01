@@ -11,6 +11,7 @@ USER=user
 run() {
   fifo() {
     local pipe="/tmp/$1"
+
     mkdir -p "$(dirname "${pipe}")"
     mkfifo "${pipe}"
     echo "${pipe}"
@@ -24,7 +25,9 @@ run() {
     local path="$1"
     local pipe="$2"
 
-    s3cp "s3://${DATA_BUCKET}/${path}" - --quiet | cat >"${pipe}"
+    while true; do
+      s3cp "s3://${DATA_BUCKET}/${path}" - --quiet | cat >"${pipe}"
+    done &
   }
 
   s3out() {
@@ -48,7 +51,6 @@ run() {
 
   s3down() {
     local path="$1"
-
     local dir=$(dirname "${path}")
     local filter=$(basename  "${path}")
 
