@@ -34,7 +34,8 @@ run() {
     local path="$2"
 
     s3cp - "s3://${DATA_BUCKET}/${path}" < "${pipe}" &
-    OUT_PIDS="${OUT_PIDS} $!"
+    OUT_PID=$!
+    OUT_PIDS="${OUT_PIDS} ${OUT_PID}"
   }
 
   s3sync() {
@@ -102,7 +103,8 @@ run() {
   ${PREFIX}${ARGS%--*} &>"${log}" &
 
   trap "kill $!" INT TERM
-  wait $! && wait ${OUT_PIDS} || exit $?
+  wait $! && wait ${OUT_PIDS} || \
+    { code=$? && wait ${OUT_PID} ; exit ${code} ; }
 }
 
 adduser -S ${USER}
