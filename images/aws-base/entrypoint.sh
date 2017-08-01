@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 export PREFIX="$1" && shift
 export ARGS="$@"
 export DATA_PATH="${DATA_PATH:-/data}"
