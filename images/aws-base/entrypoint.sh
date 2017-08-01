@@ -24,9 +24,7 @@ run() {
     local path="$1"
     local pipe="$2"
 
-    while true; do
-      s3cp "s3://${DATA_BUCKET}/${path}" - --quiet | cat > "${pipe}"
-    done &
+    s3cp "s3://${DATA_BUCKET}/${path}" - --quiet | cat >"${pipe}"
   }
 
   s3out() {
@@ -86,7 +84,6 @@ run() {
     case $mode in
       i)
         s3in "${path}" "${pipe}"
-        exec 3>"${pipe}" &
         ;;
       o)
         s3out "${pipe}" "${path}"
