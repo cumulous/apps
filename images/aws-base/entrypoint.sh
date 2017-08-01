@@ -99,7 +99,7 @@ run() {
   local log="$(fifo "${LOG_DEST}")"
   s3out "${log}" "${LOG_DEST}"
 
-  ${PREFIX}${ARGS%--*} &>"${log}" &
+  ${PREFIX}${ARGS%--*} 2>&1 | tee "${log}" &
 
   trap "kill $!" INT TERM
   wait $! && wait ${OUT_PIDS} || \
