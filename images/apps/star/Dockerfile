@@ -4,9 +4,7 @@ ARG VERSION=2.5.3a
 
 LABEL Version=${VERSION}
 
-ENV REPO="https://github.com/alexdobin/STAR/archive"
-
-RUN wget -q "${REPO}/${VERSION}.zip" && \
+RUN wget -q "https://github.com/alexdobin/STAR/archive/${VERSION}.zip" && \
     unzip "${VERSION}.zip" && \
     mv "STAR-${VERSION}/bin/Linux_x86_64_static/STAR" . && \
     rm -rf *${VERSION}*

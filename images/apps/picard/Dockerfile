@@ -2,11 +2,9 @@ FROM aws-base
 
 ARG VERSION=2.10.5
 
-LABEL Version=${VERSION}
+LABEL Version=${VERSION} \
+      Revision=1.1
 
-ENV REPO="https://github.com/broadinstitute/picard/releases/download"
-
-RUN apk add --no-cache openjdk8-jre-base && \
-    wget -q "${REPO}/${VERSION}/picard.jar"
+RUN wget -q "https://github.com/broadinstitute/picard/releases/download/${VERSION}/picard.jar"
 
 ENTRYPOINT ["entrypoint.sh", "java -Xmx2g -jar picard.jar", ""]

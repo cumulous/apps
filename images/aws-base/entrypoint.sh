@@ -6,8 +6,6 @@ export DATA_PATH="${DATA_PATH:-/data}"
 export DATA_BUCKET
 export LOG_DEST
 
-USER=user
-
 run() {
   fifo() {
     local pipe="/tmp/$1"
@@ -106,9 +104,8 @@ run() {
     { code=$? && wait ${OUT_PID} ; exit ${code} ; }
 }
 
-adduser -S ${USER}
 mkdir -p ${DATA_PATH}
-chown ${USER} ${DATA_PATH}
+chown user ${DATA_PATH}
 
 export -f run
-exec su ${USER} -s /bin/bash -c run
+exec su user -s /bin/bash -c run
